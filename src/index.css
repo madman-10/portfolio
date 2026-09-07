@@ -1,0 +1,96 @@
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:root {
+  color-scheme: dark;
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.85;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Refined background gradient for a deeper, richer look */
+  background: radial-gradient(circle at top left, rgba(91, 141, 239, 0.1), transparent 27%),
+    radial-gradient(circle at bottom right, rgba(42, 195, 119, 0.1), transparent 22%),
+    #0e141b; /* Deeper background color */
+  color: var(--text);
+}
+
+:root {
+  --surface: #1a232d; /* Slightly lighter dark surface */
+  --surface-soft: rgba(255, 255, 255, 0.08);
+  --text: #ffffff; /* Improved contrast for better accessibility */
+  --muted: #a0aec0; /* Slightly softer muted color */
+  --accent: #5b8def; /* A vibrant blue accent */
+  --accent-2: #48bb78; /* A more vibrant green accent */
+  --accent-soft: rgba(91, 141, 239, 0.15);
+  --accent-soft-2: rgba(72, 187, 120, 0.15);
+  --border: rgba(255, 255, 255, 0.15);
+  --shadow: 0 24px 60px rgba(0, 0, 0, 0.35); /* Softer shadow */
+  --shadow-soft: 0 18px 48px rgba(0, 0, 0, 0.25);
+  --heading: 'Space Grotesk', 'Inter', sans-serif;
+  --sans: 'Inter', system-ui, sans-serif;
+}
+
+/* Light theme variables */
+[data-theme="light"] {
+  --surface: #f8fafc;
+  --surface-soft: rgba(0, 0, 0, 0.06);
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #2563eb;
+  --accent-2: #059669;
+  --accent-soft: rgba(37, 99, 235, 0.12);
+  --accent-soft-2: rgba(5, 150, 105, 0.12);
+  --border: rgba(0, 0, 0, 0.12);
+  --shadow: 0 24px 60px rgba(0, 0, 0, 0.15);
+  --shadow-soft: 0 18px 48px rgba(0, 0, 0, 0.1);
+  background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 27%),
+    radial-gradient(circle at bottom right, rgba(5, 150, 105, 0.08), transparent 22%),
+    #ffffff;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: transparent;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+  /* The hero handles its own edge-to-edge framing; keep #root flush. */
+  padding: 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
