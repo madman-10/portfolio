@@ -18,7 +18,7 @@ A personal portfolio site for **Madhav Dhaval Nawab**, built as a single-page Re
 - **Custom site-wide cursor** — a small black/white dot (auto-inverts based on the surface luminance) plus a soft accent-colored ripple that follows the cursor, and a 7-dot trailing tail rendered only on the Home page.
 - **Distance-based glow on the heading and nav links** — `--glow-strength` is set on every `pointermove` and ramps up quadratically as the cursor approaches, then fades out as it leaves.
 - **Cursor-following glow on nav buttons** — a soft 35%-opacity accent halo that follows the cursor inside each button.
-- **Per-page accent** — Home/Contact use blue (`#5b8def`), About uses green (`#2ecc71`), and Projects uses amber (`#F59E0B`). The cursor halo, text glows, and nav hover text all switch to match the page.
+- **Per-page accent** — Home/Contact use blue (`#5b8def`), About uses amber (`#F59E0B`), and Projects uses green (`#2ecc71`). The cursor halo, text glows, and nav hover text all switch to match the page.
 
 ## Getting started
 
@@ -100,8 +100,8 @@ Each route renders a `.hero` panel with a modifier class that swaps the page's a
 | Route | Class | Background | Border | Accent |
 | --- | --- | --- | --- | --- |
 | `/` | `.hero` | `#ffffff` | `var(--cert-border)` (soft blue) | `#5b8def` blue |
-| `/about` | `.hero.hero--about` | `#0a0a0f` | `#2ecc71` | `#2ecc71` green |
-| `/projects` | `.hero.hero--projects` | `#0F172A` | `#F59E0B` | `#F59E0B` amber |
+| `/about` | `.hero.hero--about` | `#0F172A` | `#F59E0B` | `#F59E0B` amber |
+| `/projects` | `.hero.hero--projects` | `#0a0a0f` | `#2ecc71` | `#2ecc71` green |
 | `/contact` | `.hero` | `#ffffff` | `var(--cert-border)` | `#5b8def` blue |
 
 The `SiteCursor` component reads the current route via `useLocation()` and uses a static `ROUTE_ACCENT` map to set the cursor ripple/trail color and the text-glow variables on every route change.

@@ -3,11 +3,12 @@ import { gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin'
 import { SplitText } from 'gsap/SplitText'
+import { Observer } from 'gsap/Observer'
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
 import './App.css'
 import { ThemeProvider } from './theme-context'
 
-gsap.registerPlugin(useGSAP, ScrambleTextPlugin, SplitText)
+gsap.registerPlugin(useGSAP, ScrambleTextPlugin, SplitText, Observer)
 
 // Entrance animation hook.
 function useGsapEntrance(rootRef) {
@@ -97,8 +98,8 @@ const TRAIL_STEP_MS = 28
 
 const ROUTE_ACCENT = {
   '/': [91, 141, 239],
-  '/about': [46, 204, 113],
-  '/projects': [245, 158, 11],
+  '/about': [245, 158, 11],
+  '/projects': [46, 204, 113],
   '/contact': [91, 141, 239],
 }
 
@@ -112,13 +113,13 @@ function SiteCursor() {
   const pageAccent =
     ROUTE_ACCENT[location.pathname] || ROUTE_ACCENT['/']
   const pageAccentRef = useRef(pageAccent)
-  pageAccentRef.current = pageAccent
 
   const glowTargetsRef = useRef([])
   const buttonRectsRef = useRef([])
 
   // Apply page accent to ripple/trail on mount and on every route change.
   useEffect(() => {
+    pageAccentRef.current = pageAccent
     const [r, g, b] = pageAccent
     const gradient = `radial-gradient(circle, rgba(${r}, ${g}, ${b}, 0.45) 0%, rgba(${r}, ${g}, ${b}, 0.15) 40%, rgba(${r}, ${g}, ${b}, 0) 75%)`
     if (rippleRef.current) {
@@ -304,10 +305,94 @@ function SiteCursor() {
 }
 
 function HomePage() {
-  const ref = useRef(null)
-  useGsapEntrance(ref)
+  const containerRef = useRef(null)
+  useGsapEntrance(containerRef)
+
+  // Define the number of concentric lines and the space between them
+  const lineCount = 35
+  const gap = 11
+
+  const leftPaths = Array.from({ length: lineCount }).map((_, i) => {
+    const r = (i + 1) * gap
+    const pathLength = 1000 + Math.PI * r
+    return (
+      <path
+        key={`l-${i}`}
+        className="bg-arch-line"
+        d={`M -200 ${400 - r} L 215 ${400 - r} A ${r} ${r} 0 0 1 215 ${400 + r} L -200 ${400 + r}`}
+        fill="none"
+        stroke="var(--muted)"
+        strokeWidth="1.5" // Thickened line for better visibility
+        style={{ strokeDasharray: pathLength, strokeDashoffset: pathLength, opacity: 1 }}
+      />
+    )
+  })
+
+  const rightPaths = Array.from({ length: lineCount }).map((_, i) => {
+    const r = (i + 1) * gap
+    const pathLength = 1000 + Math.PI * r
+    return (
+      <path
+        key={`r-${i}`}
+        className="bg-arch-line"
+        d={`M 1400 ${400 - r} L 985 ${400 - r} A ${r} ${r} 0 0 0 985 ${400 + r} L 1400 ${400 + r}`}
+        fill="none"
+        stroke="var(--muted)"
+        strokeWidth="1.5" // Thickened line for better visibility
+        style={{ strokeDasharray: pathLength, strokeDashoffset: pathLength, opacity: 1 }}
+      />
+    )
+  })
+
+  useGSAP(() => {
+    // 1. Use a timeline so animations run sequentially without overlapping stutters
+    const tl = gsap.timeline()
+
+    // 2. Quick, smooth draw-in animation
+    tl.to('.bg-arch-line', {
+      strokeDashoffset: 0,
+      duration: 1.5,
+      ease: 'power2.inOut',
+      stagger: {
+        amount: 0.6, // Quicker stagger
+        from: 'center'
+      }
+    })
+
+    // 3. Continuous ambient breathing effect (starts after drawing finishes)
+    tl.to('.bg-arch-line', {
+      opacity: 0.4, // Keeps lines much more visible at their dimmest point
+      duration: 2,
+      yoyo: true,
+      repeat: -1,
+      ease: 'sine.inOut',
+      stagger: {
+        amount: 1.5,
+        from: 'center'
+      }
+    }, "+=0.2") // Adds a tiny pause before breathing begins
+  }, { scope: containerRef })
+
   return (
-    <div className="hero" ref={ref} aria-label="Home">
+    <div className="hero" ref={containerRef} aria-label="Home" style={{ position: 'relative' }}>
+
+      {/* Background SVG Graphic */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 0,
+        pointerEvents: 'none',
+        opacity: 0.75 // Substantially increased opacity to remove the dullness
+      }}>
+        <svg width="100%" height="100%" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+          {leftPaths}
+          {rightPaths}
+        </svg>
+      </div>
+
       <PortraitImage />
       <HeroName>Madhav Dhaval Nawab</HeroName>
       <Nav links={HOME_LINKS} />
@@ -319,10 +404,8 @@ function AboutPage() {
   const ref = useRef(null)
 
   useGSAP(
-    () => {
-      // gsap.* calls (fromTo, set, SplitText, timeline) inside this
-      // callback are auto-reverted on unmount via useGSAP's context.
-      // Manual DOM mutations made outside gsap.* are NOT reverted.
+    (context, contextSafe) => {
+      // 1. Existing Entrance Animations
       gsap.fromTo(
         '.hero-portrait',
         { autoAlpha: 0, scale: 0.92 },
@@ -339,75 +422,334 @@ function AboutPage() {
         { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out', stagger: 0.08, delay: 0.35 }
       )
 
-      // Per-line scramble matching https://codepen.io/GreenSock/pen/jOjaoYJ.
+      // 2. Synchronized Scramble Text with Overlap Fix & Font Load Wait
       const original = document.getElementById('about-paragraph-original')
-      const lineSpans = document.querySelectorAll('.about-paragraph__line')
-      if (original && lineSpans.length) {
+      const scrambleContainer = document.querySelector('.about-paragraph__scramble')
+
+      if (original && scrambleContainer) {
         gsap.set(original, { autoAlpha: 0 })
+        gsap.set(scrambleContainer, { autoAlpha: 1 })
 
-        const split = new SplitText(original, { type: 'lines' })
-        const lines = split.lines
-        const tl = gsap.timeline({ delay: 0.6, defaults: { ease: 'none' } })
+        // Wait for custom fonts to load so SplitText calculates widths perfectly
+        document.fonts.ready.then(contextSafe(() => {
+          const split = new SplitText(original, { type: 'lines' })
+          const lines = split.lines
 
-        lines.forEach((line, i) => {
-          const target = lineSpans[i]
-          if (!target) return
-          const rect = line.getBoundingClientRect()
-          const parentRect = original.getBoundingClientRect()
-          gsap.set(target, {
-            position: 'absolute',
-            top: rect.top - parentRect.top,
-            left: 0,
-            right: 0,
-            height: rect.height,
+          // Dynamically create the exact number of absolute spans needed
+          scrambleContainer.innerHTML = ''
+          const lineSpans = lines.map(() => {
+            const span = document.createElement('span')
+            span.className = 'about-paragraph__line'
+            scrambleContainer.appendChild(span)
+            return span
           })
-          tl.to(
-            target,
-            {
-              scrambleText: {
-                text: line.textContent,
-                chars: 'lowercase',
-                speed: 0.5,
+
+          const tl = gsap.timeline({
+            delay: 0.2,
+            defaults: { ease: 'none' },
+            onComplete: () => {
+              gsap.set(scrambleContainer, { autoAlpha: 0 })
+              gsap.set(original, { autoAlpha: 1 })
+            }
+          })
+
+          lines.forEach((line, i) => {
+            const target = lineSpans[i]
+            const rect = line.getBoundingClientRect()
+            const parentRect = original.getBoundingClientRect()
+
+            gsap.set(target, {
+              position: 'absolute',
+              top: rect.top - parentRect.top,
+              left: 0,
+              right: 0,
+              height: rect.height,
+            })
+
+            tl.to(
+              target,
+              {
+                scrambleText: {
+                  text: line.textContent,
+                  chars: 'lowercase',
+                  speed: 0.5,
+                },
+                duration: 1.5,
               },
-              duration: 2.5,
-            },
-            i * 0.15
-          )
-        })
+              i * 0.05
+            )
+          })
+        }))
       }
+
+      // 3. Static Neural Network Graphic (Load-in Only)
+      const bgTl = gsap.timeline({ delay: 0.2 })
+
+      // Draw the connecting data edges in
+      bgTl.fromTo('.about-edge',
+        { strokeDasharray: 1200, strokeDashoffset: 1200 },
+        { strokeDashoffset: 0, duration: 1.5, ease: 'power3.inOut', stagger: 0.05 }
+      )
+
+      // Scale and pop the nodes into place, then stop completely
+      bgTl.fromTo('.about-node',
+        { scale: 0, autoAlpha: 0, transformOrigin: 'center center' },
+        { scale: 1, autoAlpha: 1, duration: 0.6, ease: 'back.out(1.5)', stagger: 0.03 },
+        "-=0.8"
+      )
+
     },
     { scope: ref }
   )
 
   return (
-    <div className="hero hero--about" ref={ref} aria-label="About">
-      <PortraitImage />
-      <HeroName>About Me</HeroName>
-      <Nav links={SUBPAGE_LINKS.filter((l) => l.to !== '/about')} />
-      <div className="about-paragraph">
+    <div className="hero hero--about" ref={ref} aria-label="About" style={{ position: 'relative' }}>
+
+      {/* Golden Neural Constellation Background */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 0,
+        pointerEvents: 'none',
+        opacity: 0.25
+      }}>
+        <svg width="100%" height="100%" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
+          <g className="about-network-group" fill="#F59E0B" stroke="#F59E0B">
+            <path className="about-edge" d="M 150 200 L 450 150" strokeWidth="1" fill="none" />
+            <path className="about-edge" d="M 450 150 L 800 250" strokeWidth="1" fill="none" />
+            <path className="about-edge" d="M 150 200 L 300 500" strokeWidth="1" fill="none" />
+            <path className="about-edge" d="M 450 150 L 600 450" strokeWidth="1" fill="none" />
+            <path className="about-edge" d="M 800 250 L 600 450" strokeWidth="1" fill="none" />
+            <path className="about-edge" d="M 800 250 L 900 600" strokeWidth="1" fill="none" />
+            <path className="about-edge" d="M 300 500 L 600 450" strokeWidth="1" fill="none" />
+            <path className="about-edge" d="M 300 500 L 250 800" strokeWidth="1" fill="none" />
+            <path className="about-edge" d="M 600 450 L 550 750" strokeWidth="1" fill="none" />
+            <path className="about-edge" d="M 900 600 L 550 750" strokeWidth="1" fill="none" />
+            <path className="about-edge" d="M 900 600 L 850 850" strokeWidth="1" fill="none" />
+            <path className="about-edge" d="M 550 750 L 850 850" strokeWidth="1" fill="none" />
+            <path className="about-edge" d="M 250 800 L 550 750" strokeWidth="1" fill="none" />
+
+            <circle className="about-node" cx="150" cy="200" r="4" />
+            <circle className="about-node" cx="450" cy="150" r="6" />
+            <circle className="about-node" cx="800" cy="250" r="5" />
+            <circle className="about-node" cx="300" cy="500" r="7" />
+            <circle className="about-node" cx="600" cy="450" r="8" />
+            <circle className="about-node" cx="900" cy="600" r="5" />
+            <circle className="about-node" cx="250" cy="800" r="6" />
+            <circle className="about-node" cx="550" cy="750" r="7" />
+            <circle className="about-node" cx="850" cy="850" r="4" />
+          </g>
+        </svg>
+      </div>
+
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <PortraitImage />
+        <HeroName>About Me</HeroName>
+        <Nav links={SUBPAGE_LINKS.filter((l) => l.to !== '/about')} />
+      </div>
+
+      <div className="about-paragraph" style={{ position: 'relative', zIndex: 1 }}>
         <p className="about-paragraph__original" id="about-paragraph-original">
           Hello there! I am Madhav Nawab, currently a student at XYZ University, going through a Master's program. I am from Surat City in Gujarat, India. Go through the projects section if you want to glance at my work. Feel free to message me for any queries at information available on the Contact Me page.
         </p>
         <div className="about-paragraph__scramble" aria-hidden="true">
-          <span className="about-paragraph__line" data-line="0" />
-          <span className="about-paragraph__line" data-line="1" />
-          <span className="about-paragraph__line" data-line="2" />
-          <span className="about-paragraph__line" data-line="3" />
-          <span className="about-paragraph__line" data-line="4" />
-          <span className="about-paragraph__line" data-line="5" />
+          {/* Spans are now injected dynamically by GSAP after fonts load */}
         </div>
       </div>
     </div>
   )
 }
 
+
 function ProjectsPage() {
-  const ref = useRef(null)
-  useGsapEntrance(ref)
+  const containerRef = useRef(null)
+  const scrollOffsetRef = useRef(0)
+  const isSnappingRef = useRef(false)
+  const snapTimeoutRef = useRef(null)
+
+  const items = [
+    { title: 'E-Commerce Platform', url: 'https://github.com' },
+    { title: 'Portfolio V1', url: 'https://github.com' },
+    { title: 'WebGL Experience', url: 'https://github.com' },
+    { title: 'Dashboard UI', url: 'https://github.com' },
+    { title: 'Social Clone', url: 'https://github.com' },
+    { title: 'Mobile App Design', url: 'https://github.com' }
+  ]
+
+  useGSAP((context, contextSafe) => {
+    gsap.fromTo(
+      '.hero-nav__link',
+      { autoAlpha: 0, y: 10 },
+      { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out', stagger: 0.08, delay: 0.35 }
+    )
+    gsap.fromTo(
+      '.hero-name',
+      { autoAlpha: 0, y: 18 },
+      { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.15 }
+    )
+    gsap.fromTo(
+      '.fullscreen-graphic',
+      { autoAlpha: 0 },
+      { autoAlpha: 1, duration: 2, ease: 'power2.out', delay: 0.5 }
+    )
+
+    const DOMitems = gsap.utils.toArray('.carousel-item')
+    if (DOMitems.length === 0) return
+
+    const itemHeight = 80
+    const wrapHeight = DOMitems.length * itemHeight
+    const wrapY = gsap.utils.wrap(-itemHeight, wrapHeight - itemHeight)
+
+    const updatePositions = (offset) => {
+      DOMitems.forEach((el, i) => {
+        const rawY = (i * itemHeight) + offset
+        gsap.set(el, { y: wrapY(rawY) })
+      })
+    }
+
+    // Initial setup
+    updatePositions(0)
+
+    Observer.create({
+      target: containerRef.current,
+      type: 'wheel,touch',
+      onChange: contextSafe((self) => {
+        if (isSnappingRef.current) return
+
+        // Accumulate scroll offset for smooth momentum/trackpad scrolling
+        scrollOffsetRef.current -= self.deltaY * 0.7
+        updatePositions(scrollOffsetRef.current)
+
+        // Clear existing snap timeout and wait for scrolling to pause
+        clearTimeout(snapTimeoutRef.current)
+        snapTimeoutRef.current = setTimeout(() => {
+          isSnappingRef.current = true
+
+          // Calculate the nearest item snap point
+          const nearestSnap = Math.round(scrollOffsetRef.current / itemHeight) * itemHeight
+
+          const proxy = { val: scrollOffsetRef.current }
+          gsap.to(proxy, {
+            val: nearestSnap,
+            duration: 0.6,
+            ease: 'power3.out',
+            onUpdate: () => {
+              scrollOffsetRef.current = proxy.val
+              updatePositions(scrollOffsetRef.current)
+            },
+            onComplete: () => {
+              isSnappingRef.current = false
+            }
+          })
+        }, 150) // Triggers auto-snap 150ms after scroll input stops
+      }),
+      preventDefault: true,
+    })
+  }, { scope: containerRef })
+
   return (
-    <div className="hero hero--projects" ref={ref} aria-label="Projects">
+    <div className="hero hero--projects" ref={containerRef} aria-label="Projects" style={{ position: 'relative' }}>
+
+      {/* Fullscreen Architectural Background Graphic */}
+      <div className="fullscreen-graphic" style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 0,
+        pointerEvents: 'none',
+        opacity: 0.2
+      }}>
+        <svg width="100%" height="100%" preserveAspectRatio="none">
+          <line x1="15%" y1="0" x2="15%" y2="100%" stroke="#ffffff" strokeWidth="0.5" opacity="0.4" />
+          <line x1="40%" y1="0" x2="40%" y2="100%" stroke="#2ecc71" strokeWidth="1" opacity="0.7" />
+          <line x1="75%" y1="0" x2="75%" y2="100%" stroke="#ffffff" strokeWidth="0.5" opacity="0.3" />
+          <line x1="85%" y1="0" x2="85%" y2="100%" stroke="#ffffff" strokeWidth="2" opacity="0.15" />
+
+          <line x1="0" y1="25%" x2="100%" y2="25%" stroke="#ffffff" strokeWidth="0.5" opacity="0.4" />
+          <line x1="0" y1="65%" x2="100%" y2="65%" stroke="#ffffff" strokeWidth="1" opacity="0.2" />
+          <line x1="0" y1="85%" x2="100%" y2="85%" stroke="#2ecc71" strokeWidth="0.5" opacity="0.6" />
+
+          <line x1="0" y1="100%" x2="100%" y2="0" stroke="#2ecc71" strokeWidth="1.5" opacity="0.5" />
+          <line x1="0" y1="10%" x2="100%" y2="100%" stroke="#ffffff" strokeWidth="0.5" opacity="0.2" />
+
+          <circle cx="40%" cy="25%" r="4" fill="#2ecc71" opacity="0.9" />
+          <circle cx="15%" cy="65%" r="3" fill="#ffffff" opacity="0.6" />
+          <circle cx="75%" cy="85%" r="3" fill="#ffffff" opacity="0.6" />
+        </svg>
+      </div>
+
       <Nav links={SUBPAGE_LINKS.filter((l) => l.to !== '/projects')} />
-      <HeroSubheading>My Work</HeroSubheading>
+
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'minmax(250px, 40%) 1fr',
+        gap: '2vw',
+        width: '100%',
+        alignSelf: 'stretch',
+        flex: 1,
+        alignContent: 'center',
+        padding: '0 8vw',
+        zIndex: 1
+      }}>
+
+        {/* Left Side: Header */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          textAlign: 'right'
+        }}>
+          <div style={{ transform: 'scale(1.25)', transformOrigin: 'right center' }}>
+            <HeroSubheading>My Work</HeroSubheading>
+          </div>
+        </div>
+
+        {/* Right Side: Carousel Mask with Auto-Snap */}
+        <div className="carousel-wrapper" style={{
+          position: 'relative',
+          width: '100%',
+          height: '240px',
+          overflow: 'hidden',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
+          maskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)'
+        }}>
+          {items.map((item, i) => (
+            <a
+              key={i}
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="carousel-item"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '80px',
+                lineHeight: '80px',
+                fontSize: 'clamp(1.8rem, 4vw, 3.5rem)',
+                color: 'var(--muted)',
+                fontWeight: 600,
+                textAlign: 'left',
+                whiteSpace: 'nowrap',
+                textDecoration: 'none',
+                transition: 'color 0.2s ease',
+                display: 'block'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#ffffff' }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--muted)' }}
+            >
+              {item.title}
+            </a>
+          ))}
+        </div>
+
+      </div>
     </div>
   )
 }
