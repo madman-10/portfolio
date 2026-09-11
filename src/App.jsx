@@ -10,8 +10,13 @@ import { ThemeProvider } from './theme-context'
 
 gsap.registerPlugin(useGSAP, ScrambleTextPlugin, SplitText, Observer)
 
+import linkedinIcon from './assets/linkedin.png'
+import githubIcon from './assets/github.png'
+import emailIcon from './assets/email.png'
+
 // Entrance animation hook.
-function useGsapEntrance(rootRef) {
+
+function useGsapEntrance( rootRef ) {
   useGSAP(
     () => {
       gsap.fromTo(
@@ -757,11 +762,88 @@ function ProjectsPage() {
 function ContactPage() {
   const ref = useRef(null)
   useGsapEntrance(ref)
+
+  const { contextSafe } = useGSAP(() => {
+    gsap.from(".contact-card", {
+      y: 20,
+      opacity: 0,
+      stagger: 0.1,
+      duration: 0.6,
+      ease: "power2.out",
+      delay: 0.2
+    })
+  }, { scope: ref })
+
+  const handleMouseEnter = contextSafe((index, element) => {
+    const cards = gsap.utils.toArray(".contact-card")
+
+    // Expand the hovered card
+    gsap.to(element, {
+      flex: 3,
+      maxWidth: 600,
+      duration: 0.5,
+      ease: "power2.out",
+    })
+    element.classList.add('expanded')
+
+    // Shrink others
+    cards.forEach((card, i) => {
+      if (i !== index) {
+        gsap.to(card, {
+          flex: 1,
+          maxWidth: 200,
+          duration: 0.5,
+          ease: "power2.out",
+        })
+        card.classList.remove('expanded')
+      }
+    })
+  })
+
+  const handleMouseLeave = contextSafe(() => {
+    const cards = gsap.utils.toArray(".contact-card")
+    gsap.to(cards, {
+      flex: 1,
+      maxWidth: 250,
+      duration: 0.5,
+      ease: "power2.inOut",
+    })
+    cards.forEach(c => c.classList.remove('expanded'))
+  })
+
+  const contactLinks = [
+    { label: 'LinkedIn', url: 'http://www.linkedin.com/in/madhav-nawab', icon: linkedinIcon, username: '@madhav-nawab' },
+    { label: 'GitHub', url: 'https://github.com/madman-10', icon: githubIcon, username: 'madman-10' },
+    { label: 'Email', url: 'mailto:mdnawab001@gmail.com', icon: emailIcon, username: 'Madhav Dhaval Nawab' },
+  ]
+
   return (
-    <div className="hero" ref={ref} aria-label="Contact">
-      <PortraitImage />
-      <HeroName>Contact</HeroName>
+    <div className="hero hero--contact" ref={ref} aria-label="Contact">
       <Nav links={SUBPAGE_LINKS.filter((l) => l.to !== '/contact')} />
+      <HeroName>Contact</HeroName>
+
+      <div className="contact-card-container">
+        {contactLinks.map((link, i) => (
+          <a
+            key={i}
+            href={link.url}
+            className="contact-card"
+            onMouseEnter={(e) => handleMouseEnter(i, e.currentTarget)}
+            onMouseLeave={handleMouseLeave}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div className="contact-card__content">
+              {typeof link.icon === 'string' && link.icon.startsWith('data') || (typeof link.icon === 'object' || (typeof link.icon === 'string' && link.icon.includes('.'))) ? (
+                <img src={link.icon} alt={link.label} className="contact-card__icon" />
+              ) : (
+                <span className="contact-card__icon">{link.icon}</span>
+              )}
+              <span className="contact-card__label">{link.username}</span>
+            </div>
+          </a>
+        ))}
+      </div>
     </div>
   )
 }
