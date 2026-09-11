@@ -17,12 +17,12 @@ export default function ProjectsPage() {
   const snapTimeoutRef = useRef(null)
 
   const items = [
-    { title: 'E-Commerce Platform', url: 'https://github.com' },
-    { title: 'Portfolio V1', url: 'https://github.com' },
-    { title: 'WebGL Experience', url: 'https://github.com' },
-    { title: 'Dashboard UI', url: 'https://github.com' },
-    { title: 'Social Clone', url: 'https://github.com' },
-    { title: 'Mobile App Design', url: 'https://github.com' }
+    { title: 'Web To-Do List', url: 'https://madman-10.github.io/to-do-web/' },
+    { title: 'Color Palette Generator', url: 'color-palete-gen.vercel.app' },
+    { title: 'Guess Game', url: 'guess-game-black-nine.vercel.app' },
+    { title: 'Auto File Courier', url: 'https://github.com/madman-10/auto-file-courier' },
+    { title: 'Pomodoro Timer', url: 'https://pomodorotimerwebapp.streamlit.app/' },
+    { title: 'International Football Prediction', url: 'https://international-football-prediction.vercel.app/' }
   ]
 
   useGSAP((context, contextSafe) => {
