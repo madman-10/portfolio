@@ -4,16 +4,10 @@ import { useGSAP } from '@gsap/react'
 import { Link } from 'react-router-dom'
 import Nav from '../components/Nav'
 import HeroName from '../components/HeroName'
-import PortraitImage from '../components/PortraitImage'
 
 function useGsapEntrance( rootRef ) {
   useGSAP(
     () => {
-      gsap.fromTo(
-        '.hero-portrait',
-        { autoAlpha: 0, scale: 0.92 },
-        { autoAlpha: 1, scale: 1, duration: 1.1, ease: 'power3.out' }
-      )
       gsap.fromTo(
         '.hero-name',
         { autoAlpha: 0, y: 18 },
@@ -110,7 +104,6 @@ export default function HomePage() {
           {rightPaths}
         </svg>
       </div>
-      <PortraitImage />
       <HeroName>Madhav Dhaval Nawab</HeroName>
       <Nav links={[
         { to: '/about', label: 'About' },

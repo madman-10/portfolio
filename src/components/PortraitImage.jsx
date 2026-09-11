@@ -1,4 +1,5 @@
 import React from 'react'
+import portraitImg from '../assets/self_standby_image.jpg'
 
 export default function PortraitImage() {
   return (
@@ -6,7 +7,7 @@ export default function PortraitImage() {
       className="hero-portrait"
       aria-label="Profile photo"
       style={{
-        backgroundImage: 'url(/src/assets/rocket_ship.jpg)',
+        backgroundImage: `url(${portraitImg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
