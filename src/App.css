@@ -497,9 +497,12 @@ body[data-route="about"] .site-cursor__trail {
   opacity: 0;
   white-space: nowrap;
   transform: translateX(20px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease, max-width 0.4s ease, margin 0.4s ease;
   position: relative;
   left: 0;
+  max-width: 0;
+  overflow: hidden;
+  margin-left: 0;
 }
 
 .contact-card.expanded .contact-card__label {
@@ -507,6 +510,8 @@ body[data-route="about"] .site-cursor__trail {
   transform: translateX(0);
   position: relative;
   left: 0;
+  max-width: 300px;
+  margin-left: 12px;
 }
 
 /* =========================================================

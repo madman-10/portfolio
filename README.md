@@ -73,13 +73,24 @@ portfolio/
 │
 ├── src/                         Application source
 │   ├── main.jsx                 React entry point (BrowserRouter, ThemeProvider, App)
-│   ├── App.jsx                  Routes, page components, and the SiteCursor
+│   ├── App.jsx                  Routes and layout
 │   ├── App.css                  All styles (per-page theme variants, cursor, glow)
 │   ├── index.css                Minimal global reset / body baseline
 │   ├── theme-context.jsx        Theme provider (light/dark) + localStorage persistence
 │   ├── use-theme.js             Hook for consuming the theme context
+│   ├── components/              Reusable UI components
+│   │   ├── HeroName.jsx        Animated main heading
+│   │   ├── HeroSubheading.jsx   Animated subheading
+│   │   ├── Nav.jsx              Navigation bar with glow effects
+│   │   ├── PortraitImage.jsx    Animated hero image
+│   │   └── SiteCursor.jsx       Custom site-wide cursor and halo
+│   ├── pages/                   Page components
+│   │   ├── HomePage.jsx         Home route component
+│   │   ├── AboutPage.jsx        About route component with scramble effect
+│   │   ├── ProjectsPage.jsx     Projects route component
+│   │   └── ContactPage.jsx      Contact route component
 │   └── assets/                  Image assets used by the app
-│       ├── rocket_ship.jpg      Hero portrait (referenced from App.jsx)
+│       ├── rocket_ship.jpg      Hero portrait
 │       ├── hero.png              (reserved for future use)
 │       ├── react.svg             Vite/React boilerplate asset
 │       └── vite.svg              Vite boilerplate asset
