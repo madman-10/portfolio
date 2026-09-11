@@ -1,122 +1,54 @@
 # Portfolio
 
-A personal portfolio site for **Madhav Dhaval Nawab**, built as a single-page React app with per-page theming, GSAP entrance animations, a per-line scramble effect on the About page, and a custom site-wide cursor with a per-page accent halo.
+A high-performance personal portfolio for **Madhav Dhaval Nawab**, featuring a single-page React architecture with dynamic per-page theming, GSAP-powered animations, and a custom interactive cursor system.
 
-## Tech stack
+## Tech Stack
 
-- **Vite 8** with `@vitejs/plugin-react` — dev server, HMR, production build.
-- **React 19** + **React Router 7** — SPA with client-side routing.
-- **GSAP 3.15** with **`@gsap/react`** (`useGSAP` hook) — entrance animations.
-- **`SplitText`** and **`ScrambleTextPlugin`** — per-line scramble effect on the About page.
-- Plain CSS (no framework) — custom properties, per-page theme variants, and a layered cursor/glow system.
+- **Frontend:** React 19, React Router 7, Vite 8
+- **Animations:** GSAP 3.15 (`@gsap/react`, `SplitText`, `ScrambleTextPlugin`)
+- **Styling:** Plain CSS with custom properties and theme variants
 
-## Features
+## Key Features
 
-- **Four routes** — Home (`/`), About (`/about`), Projects (`/projects`), Contact (`/contact`). Each renders a full-viewport `.hero` panel with a different background, border, and accent color.
-- **Entrance animations** — portrait, heading, and nav links fade/slide in on every route change.
-- **Per-line scramble** on the About page — the paragraph is split into per-line overlay spans that scramble through random lowercase glyphs before settling on the final text, following the [GreenSock CodePen pattern](https://codepen.io/GreenSock/pen/jOjaoYJ).
-- **Custom site-wide cursor** — a small black/white dot (auto-inverts based on the surface luminance) plus a soft accent-colored ripple that follows the cursor, and a 7-dot trailing tail rendered only on the Home page.
-- **Distance-based glow on the heading and nav links** — `--glow-strength` is set on every `pointermove` and ramps up quadratically as the cursor approaches, then fades out as it leaves.
-- **Cursor-following glow on nav buttons** — a soft 35%-opacity accent halo that follows the cursor inside each button.
-- **Per-page accent** — Home/Contact use blue (`#5b8def`), About uses amber (`#F59E0B`), and Projects uses green (`#2ecc71`). The cursor halo, text glows, and nav hover text all switch to match the page.
+- **Dynamic Theming:** Each route (`/`, `/about`, `/projects`, `/contact`) triggers a full-viewport theme shift affecting background colors, borders, and accent highlights.
+- **Interactive Cursor:** A site-wide custom cursor with an auto-inverting dot, a route-specific accent halo, and a trailing tail effect on the Home page.
+- **Advanced Animations:** 
+  - Coordinated entrance animations for typography and imagery on every route change.
+  - A per-line scramble text effect on the About page.
+  - Distance-based quadratic glow effects on headings and navigation links.
 
-## Getting started
+## Getting Started
 
-### Prerequisites
-
-- Node.js 18 or newer.
-- npm (or pnpm / yarn — the lockfile is npm).
-
-### Install
+### Installation & Development
 
 ```bash
 npm install
-```
-
-### Develop
-
-```bash
 npm run dev
 ```
 
-Vite serves the app at the URL printed in the terminal (default `http://localhost:5173`).
-
-### Build
+### Production Build
 
 ```bash
 npm run build
-```
-
-Outputs a static bundle to `dist/`. The build is fully self-contained and can be served from any static host.
-
-### Preview the production build
-
-```bash
 npm run preview
 ```
 
-### Lint
-
-```bash
-npm run lint
-```
-
-Runs ESLint over the source using the flat config in `eslint.config.js`.
-
-## Project structure
+## Project Structure
 
 ```
-portfolio/
-├── public/                      Static assets served at the site root
-│   ├── favicon.svg              Browser tab icon
-│   └── icons.svg                 Symbol sprite (bluesky, discord, etc.)
-│
-├── src/                         Application source
-│   ├── main.jsx                 React entry point (BrowserRouter, ThemeProvider, App)
-│   ├── App.jsx                  Routes and layout
-│   ├── App.css                  All styles (per-page theme variants, cursor, glow)
-│   ├── index.css                Minimal global reset / body baseline
-│   ├── theme-context.jsx        Theme provider (light/dark) + localStorage persistence
-│   ├── use-theme.js             Hook for consuming the theme context
-│   ├── components/              Reusable UI components
-│   │   ├── HeroName.jsx        Animated main heading
-│   │   ├── HeroSubheading.jsx   Animated subheading
-│   │   ├── Nav.jsx              Navigation bar with glow effects
-│   │   ├── PortraitImage.jsx    Animated hero image
-│   │   └── SiteCursor.jsx       Custom site-wide cursor and halo
-│   ├── pages/                   Page components
-│   │   ├── HomePage.jsx         Home route component
-│   │   ├── AboutPage.jsx        About route component with scramble effect
-│   │   ├── ProjectsPage.jsx     Projects route component
-│   │   └── ContactPage.jsx      Contact route component
-│   └── assets/                  Image assets used by the app
-│       ├── rocket_ship.jpg      Hero portrait
-│       ├── hero.png              (reserved for future use)
-│       ├── react.svg             Vite/React boilerplate asset
-│       └── vite.svg              Vite boilerplate asset
-│
-├── index.html                   Vite entry HTML
-├── vite.config.js               Vite configuration
-├── eslint.config.js             Flat ESLint config (eslint, react-hooks, react-refresh)
-├── package.json                 Dependencies and scripts
-├── package-lock.json            Locked dependency tree
-├── LICENSE                      MIT License (© 2026 Madhav Nawab)
-└── README.md                    This file
+src/
+├── components/    Reusable UI (Nav, SiteCursor, Hero components)
+├── pages/        Route-specific views (Home, About, Projects, Contact)
+├── assets/       Static imagery and icons
+├── App.jsx       Routing and layout configuration
+└── App.css       Global styles and theme definitions
 ```
 
-## How the route theming works
+## Route Theme Map
 
-Each route renders a `.hero` panel with a modifier class that swaps the page's accent:
-
-| Route | Class | Background | Border | Accent |
-| --- | --- | --- | --- | --- |
-| `/` | `.hero` | `#ffffff` | `var(--cert-border)` (soft blue) | `#5b8def` blue |
-| `/about` | `.hero.hero--about` | `#0F172A` | `#F59E0B` | `#F59E0B` amber |
-| `/projects` | `.hero.hero--projects` | `#0a0a0f` | `#2ecc71` | `#2ecc71` green |
-| `/contact` | `.hero` | `#ffffff` | `var(--cert-border)` | `#5b8def` blue |
-
-The `SiteCursor` component reads the current route via `useLocation()` and uses a static `ROUTE_ACCENT` map to set the cursor ripple/trail color and the text-glow variables on every route change.
-
-## License
-
-MIT — see [LICENSE](./LICENSE).
+| Route | Background | Accent |
+| --- | --- | --- |
+| `/` | `#ffffff` | `#5b8def` (Blue) |
+| `/about` | `#0F172A` | `#F59E0B` (Amber) |
+| `/projects` | `#0a0a0f` | `#2ecc71` (Green) |
+| `/contact` | `#ffffff` | `#5b8def` (Blue) |
