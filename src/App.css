@@ -517,17 +517,80 @@ body[data-route="about"] .site-cursor__trail {
 /* =========================================================
    Responsive
    ========================================================= */
-@media (max-width: 720px) {
-  .hero {
-    row-gap: 20px;
-    padding: 56px 16px 64px;
-  }
+   /* =========================================================
+      Responsive (Smartphones & Small Tablets)
+      ========================================================= */
+   @media (max-width: 720px) {
+     /* 1. Base Hero Adjustments */
+     .hero {
+       row-gap: 20px;
+       padding: 56px 16px 64px;
+     }
 
-  .hero-name {
-    font-size: clamp(2rem, 9vw, 2.8rem);
-  }
+     .hero-name {
+       font-size: clamp(2rem, 9vw, 2.8rem);
+     }
 
-  .hero-nav {
-    gap: 18px;
-  }
-}
+     .hero-nav {
+       gap: 18px;
+     }
+
+     /* 2. Prevent Contact Page Overflow */
+     .hero--contact {
+       height: auto !important;
+       min-height: 100vh !important;
+       padding: 60px 16px !important; /* Add breathing room for scrolling */
+     }
+
+     /* 3. Disable custom cursor and glow for touch devices */
+     * {
+       cursor: auto !important;
+     }
+
+     .site-cursor,
+     .site-cursor__ripple,
+     .site-cursor__trail {
+       display: none !important;
+     }
+
+     .hero-name::before,
+     .hero-nav__link::before {
+       display: none !important;
+     }
+
+     /* 4. Stack contact cards vertically */
+     .contact-card-container {
+       flex-direction: column !important;
+       padding: 24px !important;
+       gap: 20px !important;
+     }
+
+     /* 5. Full width cards with permanently visible labels (no hover needed) */
+     .contact-card {
+       max-width: 100% !important;
+       width: 100%;
+       height: auto !important;
+       padding: 20px 0 !important;
+       justify-content: center !important;
+     }
+
+     .contact-card__label {
+       opacity: 1 !important;
+       transform: translateX(0) !important;
+       max-width: 300px !important;
+       margin-left: 12px !important;
+     }
+
+     /* 6. Adjust about paragraph for readability */
+     .about-paragraph__original,
+     .about-paragraph__scramble {
+       font-size: 1.1rem;
+       line-height: 1.6;
+     }
+     .hero--projects .hero-name {
+        font-size: clamp(2.2rem, 10vw, 3rem) !important;
+        text-align: left !important;
+        width: 100% !important;
+        margin-bottom: 20px !important;
+     }
+   }
