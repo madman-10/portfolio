@@ -515,82 +515,143 @@ body[data-route="about"] .site-cursor__trail {
 }
 
 /* =========================================================
-   Responsive
-   ========================================================= */
-   /* =========================================================
       Responsive (Smartphones & Small Tablets)
       ========================================================= */
-   @media (max-width: 720px) {
-     /* 1. Base Hero Adjustments */
-     .hero {
-       row-gap: 20px;
-       padding: 56px 16px 64px;
-     }
+@media (max-width: 720px) {
+    /* 1. Base Hero Adjustments */
+    .hero {
+        row-gap: 20px;
+        padding: 56px 16px 64px;
+    }
 
-     .hero-name {
-       font-size: clamp(2rem, 9vw, 2.8rem);
-     }
+    /* 2. Prevent Contact Page Overflow */
+    .hero--contact {
+        height: auto !important;
+        min-height: 100vh !important;
+        padding: 60px 16px !important;
+    }
 
-     .hero-nav {
-       gap: 18px;
-     }
+    /* 3. Disable custom cursor and glow for touch devices */
+    * {
+        cursor: auto !important;
+    }
 
-     /* 2. Prevent Contact Page Overflow */
-     .hero--contact {
-       height: auto !important;
-       min-height: 100vh !important;
-       padding: 60px 16px !important; /* Add breathing room for scrolling */
-     }
+    .site-cursor,
+    .site-cursor__ripple,
+    .site-cursor__trail,
+    .hero-name::before,
+    .hero-nav__link::before {
+        display: none !important;
+    }
 
-     /* 3. Disable custom cursor and glow for touch devices */
-     * {
-       cursor: auto !important;
-     }
+    /* 4. Stack contact cards vertically */
+    .contact-card-container {
+        flex-direction: column !important;
+        padding: 24px !important;
+        gap: 20px !important;
+    }
 
-     .site-cursor,
-     .site-cursor__ripple,
-     .site-cursor__trail {
-       display: none !important;
-     }
+    .contact-card {
+        max-width: 100% !important;
+        width: 100%;
+        height: auto !important;
+        padding: 16px 20px !important;
+        justify-content: center !important;
+    }
 
-     .hero-name::before,
-     .hero-nav__link::before {
-       display: none !important;
-     }
-
-     /* 4. Stack contact cards vertically */
-     .contact-card-container {
-       flex-direction: column !important;
-       padding: 24px !important;
-       gap: 20px !important;
-     }
-
-     /* 5. Full width cards with permanently visible labels (no hover needed) */
-     .contact-card {
-       max-width: 100% !important;
-       width: 100%;
-       height: auto !important;
-       padding: 20px 0 !important;
-       justify-content: center !important;
-     }
-
-     .contact-card__label {
-       opacity: 1 !important;
-       transform: translateX(0) !important;
-       max-width: 300px !important;
-       margin-left: 12px !important;
-     }
-
-     /* 6. Adjust about paragraph for readability */
-     .about-paragraph__original,
-     .about-paragraph__scramble {
-       font-size: 1.1rem;
-       line-height: 1.6;
-     }
-     .hero--projects .hero-name {
-        font-size: clamp(2.2rem, 10vw, 3rem) !important;
-        text-align: left !important;
+    .contact-card__content {
         width: 100% !important;
-        margin-bottom: 20px !important;
-     }
-   }
+        justify-content: center !important; /* Groups icon and text in the center */
+        align-items: center !important;
+        gap: 64px !important;
+    }
+
+        /* Shrink the icon images/fonts down for mobile */
+        .contact-card__icon {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 36px !important;
+        flex-shrink: 0 !important;
+        margin-right: 10px !important;
+    }
+
+        /* Uniformly shrink the text and allow it to flow safely */
+        .contact-card__label {
+        opacity: 1 !important;
+        transform: translateX(0) !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        font-size: 0.95rem !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        text-align: left !important; /* Keeps wrapped text readable while grouped in center */
+    }
+
+    /* 5. Adjust about paragraph for readability */
+    .about-paragraph__original,
+    .about-paragraph__scramble {
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    /* 6. Projects Page Fixes */
+    .hero--projects {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        padding: 60px 16px 40px !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Nav buttons at the top */
+    .hero--projects .hero-nav {
+        position: relative !important;
+        width: 100%;
+        display: flex !important;
+        justify-content: center !important;
+        margin: 0 0 24px 0 !important;
+    }
+
+    /* Safely target the layout wrapper to stack text and carousel vertically */
+    .hero--projects > div:not(.hero-nav):not(.fullscreen-graphic) {
+        position: relative !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        margin: 0 !important;
+        gap: 40px !important;
+        z-index: 10 !important;
+    }
+
+    /* My Work text placement and centering */
+    .hero--projects .hero-name {
+        position: relative !important;
+        transform: none !important;
+        font-size: clamp(1.5rem, 6vw, 1.5rem) !important;
+        white-space: nowrap !important;
+        text-align: center !important;
+        width: 100% !important;
+        margin: 0;
+        margin-left: 1rem;
+    }
+
+    /* Carousel untouched except for responsive text scaling */
+    .hero--projects [class*="carousel"] > *,
+    .hero--projects [class*="list"] > * {
+        white-space: nowrap !important;
+        font-size: clamp(1.2rem, 6vw, 1.8rem) !important;
+        text-align: center !important;
+    }
+    .hero--projects .fullscreen-graphic {
+        position: absolute !important;
+        display: block !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        z-index: 0 !important;
+    }
+}
